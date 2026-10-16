@@ -24,10 +24,10 @@ class Application:
     def __init__(self):
         self.credentials = []
         for role in ('USER', 'ADMIN'):
-            username = os.environ.get(f'FIELDPOS_{role}_USERNAME', '')
-            password = os.environ.get(f'FIELDPOS_{role}_PASSWORD', '')
+            username = os.environ.get(f'FIELDPOS_{role}_USERNAME', role.lower())
+            password = os.environ.get(f'FIELDPOS_{role}_PASSWORD', 'aa')
             if not username or not password or ':' in username:
-                raise ValueError(f'Configure FIELDPOS_{role}_USERNAME and FIELDPOS_{role}_PASSWORD secrets')
+                raise ValueError(f'Invalid FIELDPOS_{role}_USERNAME or FIELDPOS_{role}_PASSWORD')
             self.credentials.append((f'{username}:{password}'.encode(), role == 'ADMIN'))
         if self.credentials[0][0].split(b':')[0] == self.credentials[1][0].split(b':')[0]:
             raise ValueError('User and admin must have distinct usernames')

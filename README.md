@@ -63,8 +63,9 @@ og vindinnstillinger. Brukerkontoen kan sende posisjoner/målinger, se felles
 måledata og sende rapport. Delte kontoer identifiserer ikke individuelle personer.
 Bruk separate nettleserprofiler ved testing av bruker og admin.
 
-Følgende miljøvariabler er påkrevd og skal gis via secrets; ingen har
-standardpassord:
+Testutgaven starter uten innloggingssecrets: brukernavn `user` eller `admin`,
+passord `aa` for begge. Dette er en enkel sperre mot feiltrykk i testen.
+Følgende valgfrie miljøvariabler overstyrer testverdiene:
 
 - `FIELDPOS_USER_USERNAME`, `FIELDPOS_USER_PASSWORD`
 - `FIELDPOS_ADMIN_USERNAME`, `FIELDPOS_ADMIN_PASSWORD`
@@ -106,13 +107,13 @@ docker run --rm --read-only \
   dsafieldpos-az:local python /tests/smoke_process.py
 ```
 
-For normal lokal oppstart: bruk en privat env-fil med de fire innloggingsvariablene
-og en egen, klargjort datakatalog med riktige rettigheter. Ikke bruk kildekatalogen
+For lokal testoppstart kreves ingen env-fil. Bruk en egen, klargjort datakatalog
+med riktige rettigheter. Ved behov kan innloggingsverdiene overstyres med en
+privat env-fil. Ikke bruk kildekatalogen
 som datakatalog. Bind publisert port til localhost under lokal testing:
 
 ```sh
 docker run --rm --name dsafieldpos-az --read-only \
-  --env-file /absolutt/sti/til/privat.env \
   --tmpfs /tmp:uid=10001,gid=10001,mode=0700 \
   --mount type=bind,source=/absolutt/sti/til/share-root,target=/data \
   -p 127.0.0.1:8030:8030 dsafieldpos-az:local
@@ -146,3 +147,12 @@ Alle visninger som bruker den delte kartkoden får OpenStreetMap som standard.
 Tidligere lagret «Lys»-valg faller tilbake til OpenStreetMap ved åpning; andre
 eksisterende kartvalg beholdes. «Lys» kan fortsatt velges manuelt i full visning.
 Ingen kartnøkkel eller Key Vault-integrasjon er lagt til i denne endringen.
+
+## Avklart prioritering for første Azure-test
+
+Brukeravklaring 2026-10-16: Første mål er å få appen til å kjøre i Azure og
+bekrefte at funksjonene virker. Trackingdata i denne testen regnes ikke som
+uerstattelige. Videre arbeid med versjons-/revisjonskontroll, utrullingsstrategi
+og sterkere garantier for dataintegritet utsettes til etter funksjonstesten og
+skal ikke blokkere første testdeploy. Dette innebærer ikke at Azure Files-
+kompatibilitet eller dataintegritet er verifisert. Start med én replika.

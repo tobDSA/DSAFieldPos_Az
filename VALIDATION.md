@@ -34,3 +34,11 @@ en beslutning om ekstern publisering.
 - Nettleserkontroll ved 390 × 844: kart og knapper vises, geigerteller åpnes og
   «Til kartet» lukker dialogen. Tunge kartoverlegg utelates.
 - Faktisk GPS på telefon og Key Vault er ikke testet/implementert.
+
+## Forenklet testinnlogging
+
+På brukerens anmodning har testutgaven innebygde standardverdier `user`/`aa`
+og `admin`/`aa`. Oppstart krever dermed ingen innloggingssecrets. Miljøvariabler
+kan fortsatt overstyre verdiene. Dette erstatter det tidligere kravet om at
+innloggingsverdier alltid må leveres utenfra. SMTP er fortsatt avslått i
+reservekonfigurasjonen og krever egne verdier hvis det aktiveres.

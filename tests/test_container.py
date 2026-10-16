@@ -36,6 +36,20 @@ class ContainerTests(unittest.TestCase):
         body = b''.join(self.app(env, lambda status, headers: result.update(status=status, headers=headers)))
         return int(result['status'].split()[0]), body
 
+    def test_test_credentials_without_environment(self):
+        keys = [f'FIELDPOS_{role}_{field}' for role in ('USER', 'ADMIN') for field in ('USERNAME', 'PASSWORD')]
+        with patch.dict(os.environ):
+            for key in keys:
+                os.environ.pop(key, None)
+            application = Application()
+        for raw, expected_admin in ((b'user:aa', False), (b'admin:aa', True)):
+            env = {'PATH_INFO': '/api/access', 'REQUEST_METHOD': 'GET',
+                   'HTTP_AUTHORIZATION': 'Basic ' + base64.b64encode(raw).decode()}
+            response = {}
+            body = b''.join(application(env, lambda status, headers: response.update(status=status)))
+            self.assertEqual(response['status'], '200 OK')
+            self.assertEqual(json.loads(body)['admin'], expected_admin)
+
     def test_health_and_auth(self):
         self.assertEqual(self.request('/health', None)[0], 200)
         self.assertEqual(self.request('/', None)[0], 401)
