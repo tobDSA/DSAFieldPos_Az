@@ -55,6 +55,11 @@ def stop(proc):
 proc = start()
 try:
     assert request('/')[0] == 200
+    assert request('/mobile')[0] == 200
+    assert b'class="mobile-view"' in request('/mobile')[1]
+    assert request('/mobile', False)[0] == 401
+    assert request('/mobile.css')[0] == 200
+    assert request('/mobile.js')[0] == 200
     assert request('/', False)[0] == 401
     assert request('/config/DSAFieldPos.json')[0] == 404
     def position(i):

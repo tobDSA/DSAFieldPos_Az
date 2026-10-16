@@ -223,6 +223,11 @@
     if (measurementGpsStatus) measurementGpsStatus.value = text;
     gpsButton.classList.remove("active", "waiting", "error");
     if (mode) gpsButton.classList.add(mode);
+    gpsButton.setAttribute("aria-pressed", String(state.enabled));
+    gpsButton.setAttribute("aria-label", state.enabled ? "Slå av GPS" : "Slå på GPS");
+    if (document.body.classList.contains("mobile-view")) {
+      gpsButton.textContent = state.enabled ? "GPS av" : "GPS på";
+    }
   }
 
   function focusNorway() {
@@ -329,9 +334,9 @@
   function storedBaseMapKey() {
     try {
       const key = window.localStorage.getItem(MAP_STORAGE_KEY);
-      return baseMaps[key] ? key : "cartoLight";
+      return baseMaps[key] && key !== "cartoLight" ? key : "osm";
     } catch (err) {
-      return "cartoLight";
+      return "osm";
     }
   }
 
@@ -972,6 +977,10 @@
   }
 
   function openGeigerWindow() {
+    if (document.body.classList.contains("mobile-view")) {
+      document.getElementById("mobile-geiger-dialog")?.showModal();
+      return;
+    }
     const features = "popup=yes,width=430,height=860,resizable=yes,scrollbars=yes";
     const win = window.open("07_geiger_lcars.html", "fieldpos-geiger", features);
     if (win) {

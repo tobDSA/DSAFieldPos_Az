@@ -6,6 +6,7 @@ import importlib.util
 import io
 import logging
 import os
+import re
 import signal
 import threading
 
@@ -59,6 +60,16 @@ class Application:
         if path == '/api/access':
             start_response('200 OK', [('Content-Type', 'application/json')])
             return [b'{"admin":true}' if matched[0] else b'{"admin":false}']
+        if path in ('/mobile', '/mobile/'):
+            html = (ROOT / 'static/index.html').read_text(encoding='utf-8')
+            html = html.replace('<head>', '<head>\n  <base href="/">')
+            html = html.replace('</head>', '<link rel="stylesheet" href="/mobile.css?v=1">\n<script src="/mobile.js?v=1" defer></script>\n</head>')
+            html = html.replace('<body>', '<body class="mobile-view">')
+            # Mobile omits heavy optional overlays and their startup downloads.
+            html = re.sub(r'  <script src="0[1-6]_[^\"]+"></script>\n', '', html)
+            body = html.encode('utf-8')
+            start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Cache-Control', 'no-store'), ('Content-Length', str(len(body)))])
+            return [body]
         handler = self.handler.__new__(self.handler)
         handler.path = path + ('?' + environ['QUERY_STRING'] if environ.get('QUERY_STRING') else '')
         handler.command = 'GET'

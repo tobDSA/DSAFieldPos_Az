@@ -132,3 +132,17 @@ docker run --rm --name dsafieldpos-az --read-only \
 Mulige eksisterende ressurser, foreløpig ikke kontrollert:
 `rg-azurelab-tibrate`, `cae-nexus-tibrate`, `acrnexustibrate.azurecr.io`.
 Ingen Azure-ressurser er opprettet eller endret.
+
+## Mobilvisning
+
+`/mobile` og `/mobile/` viser et forenklet kart med GPS på/av, Geigerteller,
+Norge og lenke til full visning. Samme innlogging og presence-backend brukes.
+GPS startes bare etter trykk; HTTPS og nettlesertillatelse kreves på telefon.
+Geigertelleren er den eksisterende treningssimulatoren, åpnet over kartet med
+«Til kartet». Instrumentet lastes ut ved lukking; kartets aktive GPS beholdes.
+Tunge valgfrie kartoverlegg lastes ikke på mobilvisningen.
+
+Alle visninger som bruker den delte kartkoden får OpenStreetMap som standard.
+Tidligere lagret «Lys»-valg faller tilbake til OpenStreetMap ved åpning; andre
+eksisterende kartvalg beholdes. «Lys» kan fortsatt velges manuelt i full visning.
+Ingen kartnøkkel eller Key Vault-integrasjon er lagt til i denne endringen.

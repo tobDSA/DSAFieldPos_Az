@@ -42,6 +42,17 @@ class ContainerTests(unittest.TestCase):
         self.assertEqual(self.request('/')[0], 200)
         self.assertEqual(self.request('/fieldpos.js')[0], 200)
 
+    def test_mobile_route_and_assets(self):
+        self.assertEqual(self.request('/mobile', None)[0], 401)
+        for path in ('/mobile', '/mobile/'):
+            code, body = self.request(path)
+            self.assertEqual(code, 200)
+            self.assertIn(b'<base href="/">', body)
+            self.assertIn(b'class="mobile-view"', body)
+            self.assertNotIn(b'<script src="03_kommuner_demografi.js', body)
+        for path in ('/mobile.css', '/mobile.js', '/07_geiger_lcars.html'):
+            self.assertEqual(self.request(path)[0], 200)
+
     def test_private_files_and_cross_site(self):
         for path in ('/config/DSAFieldPos.json', '/2G_fieldpos_server.py', '/data/online2/fieldpos_measurements.jsonl'):
             self.assertEqual(self.request(path)[0], 404)

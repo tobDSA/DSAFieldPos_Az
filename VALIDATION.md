@@ -26,3 +26,11 @@ monterte rettigheter og overlevelse av container-/revisjonsbytte er ikke
 verifisert. Nettleser/GPS, MET, SMTP, iframe og endelig tilgangsmodell gjenstår.
 Tilgangsmodellen er foreløpig Basic med bruker-/administratorrolle og er ikke
 en beslutning om ekstern publisering.
+
+## Mobilvisning
+
+- Seks backend-tester består, inkludert begge mobilruter, tilgangskontroll og
+  de nye statiske ressursene. JavaScript-syntaks er kontrollert.
+- Nettleserkontroll ved 390 × 844: kart og knapper vises, geigerteller åpnes og
+  «Til kartet» lukker dialogen. Tunge kartoverlegg utelates.
+- Faktisk GPS på telefon og Key Vault er ikke testet/implementert.
