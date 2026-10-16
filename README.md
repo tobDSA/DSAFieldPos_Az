@@ -56,19 +56,10 @@ verifisert distribuert leielås. Én replika per revisjon alene er ikke en garan
 mot overlapp. Ikke kjør den gamle separate vindlasteren mot de samme dataene.
 Tailscale og desktop-launcher inngår ikke i containeren.
 
-Foreløpig tilgangskontroll er HTTP Basic med separate bruker- og adminkontoer.
-Alle sider, kartdata og API-er unntatt `/health` krever innlogging.
-Administrator kreves for sletting, rapportinnstillinger, intervallstart/stopp
-og vindinnstillinger. Brukerkontoen kan sende posisjoner/målinger, se felles
-måledata og sende rapport. Delte kontoer identifiserer ikke individuelle personer.
-Bruk separate nettleserprofiler ved testing av bruker og admin.
-
-Testutgaven starter uten innloggingssecrets: brukernavn `user` eller `admin`,
-passord `aa` for begge. Dette er en enkel sperre mot feiltrykk i testen.
-Følgende valgfrie miljøvariabler overstyrer testverdiene:
-
-- `FIELDPOS_USER_USERNAME`, `FIELDPOS_USER_PASSWORD`
-- `FIELDPOS_ADMIN_USERNAME`, `FIELDPOS_ADMIN_PASSWORD`
+Testappen åpnes direkte uten innlogging på alle sider og API-er, inkludert
+`/mobile` og `/mobile/dosimeter`. Det kreves ingen bruker-/administrator-
+variabler. Administrasjonsfunksjoner er også tilgjengelige i den åpne testappen.
+Blokkering av private filer og cross-site-forespørsler er beholdt.
 
 Ved aktiv SMTP brukes dessuten `FIELDPOS_SMTP_USERNAME` og
 `FIELDPOS_SMTP_PASSWORD`. Host, avsender og TLS-valg angis i configens `mail`.
@@ -108,8 +99,7 @@ docker run --rm --read-only \
 ```
 
 For lokal testoppstart kreves ingen env-fil. Bruk en egen, klargjort datakatalog
-med riktige rettigheter. Ved behov kan innloggingsverdiene overstyres med en
-privat env-fil. Ikke bruk kildekatalogen
+med riktige rettigheter.  Ikke bruk kildekatalogen
 som datakatalog. Bind publisert port til localhost under lokal testing:
 
 ```sh
@@ -136,10 +126,10 @@ Ingen Azure-ressurser er opprettet eller endret.
 
 ## Mobilvisning
 
-`/mobile` og `/mobile/` viser et forenklet kart med GPS på/av, Geigerteller,
-Norge og lenke til full visning. Samme innlogging og presence-backend brukes.
+`/mobile` og `/mobile/` viser et forenklet kart med GPS på/av, Dosimeter,
+Norge og lenke til full visning. Samme presence-backend brukes; ingen innlogging kreves.
 GPS startes bare etter trykk; HTTPS og nettlesertillatelse kreves på telefon.
-Geigertelleren er den eksisterende treningssimulatoren, åpnet over kartet med
+Dosimeteret er den eksisterende treningssimulatoren, åpnet over kartet med
 «Til kartet». Instrumentet lastes ut ved lukking; kartets aktive GPS beholdes.
 Tunge valgfrie kartoverlegg lastes ikke på mobilvisningen.
 
@@ -156,3 +146,8 @@ uerstattelige. Videre arbeid med versjons-/revisjonskontroll, utrullingsstrategi
 og sterkere garantier for dataintegritet utsettes til etter funksjonstesten og
 skal ikke blokkere første testdeploy. Dette innebærer ikke at Azure Files-
 kompatibilitet eller dataintegritet er verifisert. Start med én replika.
+
+Direkteadresse til dosimeteret: `/mobile/dosimeter` (og med avsluttende
+`/`). Ingen innlogging kreves. Mobilknappen bruker også denne adressen.
+
+Mobilheader og sidetittel: `DSA FieldPos Mobile`.

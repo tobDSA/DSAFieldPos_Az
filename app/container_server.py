@@ -1,11 +1,7 @@
 """WSGI gateway for the existing FieldPos handlers; one process, bounded threads."""
-import base64
-import binascii
-import hmac
 import importlib.util
 import io
 import logging
-import os
 import re
 import signal
 import threading
@@ -22,15 +18,6 @@ def load_server():
 
 class Application:
     def __init__(self):
-        self.credentials = []
-        for role in ('USER', 'ADMIN'):
-            username = os.environ.get(f'FIELDPOS_{role}_USERNAME', role.lower())
-            password = os.environ.get(f'FIELDPOS_{role}_PASSWORD', 'aa')
-            if not username or not password or ':' in username:
-                raise ValueError(f'Invalid FIELDPOS_{role}_USERNAME or FIELDPOS_{role}_PASSWORD')
-            self.credentials.append((f'{username}:{password}'.encode(), role == 'ADMIN'))
-        if self.credentials[0][0].split(b':')[0] == self.credentials[1][0].split(b':')[0]:
-            raise ValueError('User and admin must have distinct usernames')
         effective_wind_config()  # Validate persisted user settings before accepting requests.
         self.backend = load_server()
         self.handler = self.backend.create_handler()
@@ -40,17 +27,6 @@ class Application:
         if path == '/health' and environ['REQUEST_METHOD'] in ('GET', 'HEAD'):
             start_response('200 OK', [('Content-Type', 'application/json')])
             return [b'' if environ['REQUEST_METHOD'] == 'HEAD' else b'{"ok":true}']
-        supplied = environ.get('HTTP_AUTHORIZATION', '')
-        decoded = b''
-        if supplied.startswith('Basic '):
-            try:
-                decoded = base64.b64decode(supplied[6:], validate=True)
-            except (ValueError, binascii.Error):
-                pass
-        matched = [admin for expected, admin in self.credentials if hmac.compare_digest(decoded, expected)]
-        if not matched:
-            start_response('401 Unauthorized', [('WWW-Authenticate', 'Basic realm="DSAFieldPos", charset="UTF-8"'), ('Content-Type', 'text/plain')])
-            return [b'Authentication required']
         if environ['REQUEST_METHOD'] != 'GET':
             start_response('405 Method Not Allowed', [('Allow', 'GET'), ('Content-Type', 'text/plain')])
             return [b'Method not supported']
@@ -59,12 +35,23 @@ class Application:
             return [b'Cross-site requests are disabled']
         if path == '/api/access':
             start_response('200 OK', [('Content-Type', 'application/json')])
-            return [b'{"admin":true}' if matched[0] else b'{"admin":false}']
+            return [b'{"admin":true}']
+        if path in ('/mobile/geigerteller', '/mobile/geigerteller/', '/07_geiger_lcars.html'):
+            start_response('308 Permanent Redirect', [('Location', '/mobile/dosimeter'), ('Content-Length', '0')])
+            return [b'']
+        if path in ('/mobile/dosimeter', '/mobile/dosimeter/'):
+            html = (ROOT / 'static/07_dosimeter_lcars.html').read_text(encoding='utf-8')
+            html = html.replace('<head>', '<head>\n  <base href="/">')
+            body = html.encode('utf-8')
+            start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Cache-Control', 'no-store'), ('Content-Length', str(len(body)))])
+            return [body]
         if path in ('/mobile', '/mobile/'):
             html = (ROOT / 'static/index.html').read_text(encoding='utf-8')
             html = html.replace('<head>', '<head>\n  <base href="/">')
             html = html.replace('</head>', '<link rel="stylesheet" href="/mobile.css?v=1">\n<script src="/mobile.js?v=1" defer></script>\n</head>')
             html = html.replace('<body>', '<body class="mobile-view">')
+            html = html.replace('<h1>Modul: FieldPos</h1>', '<h1>DSA FieldPos Mobile</h1>')
+            html = html.replace('<title>HPTrax FieldPos</title>', '<title>DSA FieldPos Mobile</title>')
             # Mobile omits heavy optional overlays and their startup downloads.
             html = re.sub(r'  <script src="0[1-6]_[^\"]+"></script>\n', '', html)
             body = html.encode('utf-8')
@@ -77,7 +64,7 @@ class Application:
         handler.directory = str(ROOT / 'static')
         handler.headers = {}
         handler.wfile = io.BytesIO()
-        handler.is_admin = matched[0]
+        handler.is_admin = True  # Open test app: no account login or role separation.
         response = {'status': '200 OK', 'headers': []}
         handler.send_response = lambda code, message=None: response.update(status=f'{code} {message or __import__("http").HTTPStatus(code).phrase}')
         def send_header(key, value):

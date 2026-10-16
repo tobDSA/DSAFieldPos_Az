@@ -31,7 +31,7 @@ en beslutning om ekstern publisering.
 
 - Seks backend-tester består, inkludert begge mobilruter, tilgangskontroll og
   de nye statiske ressursene. JavaScript-syntaks er kontrollert.
-- Nettleserkontroll ved 390 × 844: kart og knapper vises, geigerteller åpnes og
+- Nettleserkontroll ved 390 × 844: kart og knapper vises, dosimeter åpnes og
   «Til kartet» lukker dialogen. Tunge kartoverlegg utelates.
 - Faktisk GPS på telefon og Key Vault er ikke testet/implementert.
 
@@ -42,3 +42,10 @@ og `admin`/`aa`. Oppstart krever dermed ingen innloggingssecrets. Miljøvariable
 kan fortsatt overstyre verdiene. Dette erstatter det tidligere kravet om at
 innloggingsverdier alltid må leveres utenfra. SMTP er fortsatt avslått i
 reservekonfigurasjonen og krever egne verdier hvis det aktiveres.
+
+## Åpen testapp og mobilnavn
+
+Innlogging fjernet på brukerens anmodning. Alle sider og administrasjons-API-er
+åpnes uten konto/passord; tidligere beskrivelser av Basic-innlogging er historiske.
+Mobilheader og sidetittel er endret til «DSA FieldPos Mobile». Tester kontrollerer
+åpen tilgang uten miljøvariabler og korrekt header på begge mobilrutene.

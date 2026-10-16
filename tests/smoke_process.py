@@ -57,10 +57,10 @@ try:
     assert request('/')[0] == 200
     assert request('/mobile')[0] == 200
     assert b'class="mobile-view"' in request('/mobile')[1]
-    assert request('/mobile', False)[0] == 401
+    assert request('/mobile', False)[0] == 200
     assert request('/mobile.css')[0] == 200
     assert request('/mobile.js')[0] == 200
-    assert request('/', False)[0] == 401
+    assert request('/', False)[0] == 200
     assert request('/config/DSAFieldPos.json')[0] == 404
     def position(i):
         return request(f'/api/my-position/presence?clientId=smoke-{i}&presence=1&lat=60&lon=10')[0]
@@ -93,4 +93,4 @@ try:
     assert subprocess.run(['python', '/app/container_server.py'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10).returncode != 0
 finally:
     config.chmod(0o600)
-print('PASS: UID 10001, read-only image, HTTP, auth, 20 concurrent writes, restart persistence, SIGTERM, immutable config, invalid and unreadable config')
+print('PASS: UID 10001, read-only image, HTTP, open access, 20 concurrent writes, restart persistence, SIGTERM, immutable config, invalid and unreadable config')

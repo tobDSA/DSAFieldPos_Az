@@ -120,7 +120,7 @@
   const reportEmailInput = document.getElementById("report-email");
   const reportIntervalInput = document.getElementById("report-interval");
   const reportSaveButton = document.getElementById("report-save");
-  const geigerWindowOpenButton = document.getElementById("geiger-window-open");
+  const dosimeterWindowOpenButton = document.getElementById("dosimeter-window-open");
   const reportSendNowButton = document.getElementById("report-send-now");
   const reportIntervalToggleButton = document.getElementById("report-interval-toggle");
   const reportStatus = document.getElementById("report-status");
@@ -976,18 +976,18 @@
     placeNamesDockToggle?.classList.remove("active");
   }
 
-  function openGeigerWindow() {
+  function openDosimeterWindow() {
     if (document.body.classList.contains("mobile-view")) {
-      document.getElementById("mobile-geiger-dialog")?.showModal();
+      document.getElementById("mobile-dosimeter-dialog")?.showModal();
       return;
     }
     const features = "popup=yes,width=430,height=860,resizable=yes,scrollbars=yes";
-    const win = window.open("07_geiger_lcars.html", "fieldpos-geiger", features);
+    const win = window.open("07_dosimeter_lcars.html", "fieldpos-dosimeter", features);
     if (win) {
       win.focus();
       return;
     }
-    window.location.href = "07_geiger_lcars.html";
+    window.location.href = "07_dosimeter_lcars.html";
   }
 
   async function sendReportNow() {
@@ -1163,7 +1163,7 @@
     });
 
     reportSaveButton?.addEventListener("click", closeLayoutSettingsPanel);
-    geigerWindowOpenButton?.addEventListener("click", openGeigerWindow);
+    dosimeterWindowOpenButton?.addEventListener("click", openDosimeterWindow);
     reportSendNowButton?.addEventListener("click", sendReportNow);
     reportIntervalToggleButton?.addEventListener("click", toggleReportInterval);
     metWindChoiceButtons.forEach((button) => {
