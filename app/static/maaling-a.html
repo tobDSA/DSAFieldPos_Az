@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HPTrax FieldPos - Måling A</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="fieldpos.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body class="measurement-page">
+  <header class="app-header">
+    <div class="brand-block">
+      <div>
+        <p class="kicker">DSA Field Nexus</p>
+        <h1>Modul: Måledata A</h1>
+      </div>
+    </div>
+    <nav class="module-nav" aria-label="Navigasjon">
+      <a class="module-button back-button" href="index.html">Tilbake</a>
+    </nav>
+    <div class="status-panel" aria-live="polite">
+      <img class="status-symbol" src="images/radiaktivitet03.png" alt="" aria-hidden="true" />
+      <span id="status-text">Av</span>
+      <button id="gps-toggle" class="gps-button" type="button" title="Send min posisjon">S</button>
+    </div>
+  </header>
+
+  <main class="map-shell">
+    <section class="map-settings" aria-label="Kartinnstillinger">
+      <button id="settings-toggle" class="settings-button" type="button" title="Kartinnstillinger">⚙</button>
+      <div id="settings-panel" class="settings-panel" hidden>
+        <div class="settings-title">Kart</div>
+        <label>
+          <input type="radio" name="base-map" value="osm" />
+          OpenStreetMap
+        </label>
+        <label>
+          <input type="radio" name="base-map" value="topo" />
+          Topografisk
+        </label>
+        <label>
+          <input type="radio" name="base-map" value="satellite" />
+          Satellitt
+        </label>
+        <label>
+          <input type="radio" name="base-map" value="cartoLight" />
+          Lys
+        </label>
+      </div>
+    </section>
+    <div id="map"></div>
+    <section class="measurement-panel" aria-label="Måledata A">
+      <form id="measurement-a-form" class="measurement-form">
+        <div class="measurement-heading">
+          <div>
+            <p class="measurement-kicker">Manuell registrering</p>
+            <h2>Måledata A</h2>
+          </div>
+          <button id="measurement-now" class="measurement-button" type="button">Tid nå</button>
+        </div>
+
+        <div class="measurement-grid">
+          <label>
+            Doserate [Sv/h]
+            <input id="measure-doserate" name="doserate" type="number" step="any" inputmode="decimal" placeholder="5.9e-08" />
+          </label>
+          <label>
+            Tidspunkt
+            <input id="measure-timestamp" name="timestamp" type="datetime-local" />
+          </label>
+          <label>
+            Målehøyde [m]
+            <input id="measure-height" name="measurement_height" type="number" step="0.1" inputmode="decimal" placeholder="1.0" />
+          </label>
+          <label>
+            Måletype
+            <input id="measure-type" name="measurement_type" type="text" value="FOT" />
+          </label>
+          <label>
+            Lengdegrad
+            <input id="measure-lon" name="longitude" type="number" step="any" inputmode="decimal" placeholder="10.7522" />
+          </label>
+          <label>
+            Breddegrad
+            <input id="measure-lat" name="latitude" type="number" step="any" inputmode="decimal" placeholder="59.9139" />
+          </label>
+          <label>
+            Målepunkt-ID
+            <input id="measure-point-id" name="measuring_point_id" type="text" placeholder="000119" />
+          </label>
+          <label>
+            Målepunktnavn
+            <input id="measure-point-name" name="measuring_point_name" type="text" placeholder="Folkeparken, Kristiansund" />
+          </label>
+          <label>
+            Sesjon
+            <input id="measure-session" name="session" type="text" placeholder="PLIS PL02752" />
+          </label>
+          <label>
+            Lag
+            <input id="measure-team" name="team" type="text" value="DSB RADIAK PLIS" />
+          </label>
+          <label>
+            Hendelse
+            <input id="measure-event" name="event" type="text" value="Sivilforsvaret" />
+          </label>
+          <label>
+            Instrumentnr.
+            <input id="measure-instrument" name="instrument_number" type="text" />
+          </label>
+          <label>
+            Snødybde [m]
+            <input id="measure-snow" name="snow_depth" type="number" step="0.01" inputmode="decimal" />
+          </label>
+          <label class="checkbox-field">
+            <input id="measure-rainfall" name="rainfall" type="checkbox" />
+            Nedbør
+          </label>
+          <label class="wide-field">
+            Kommentar
+            <textarea id="measure-comment" name="comment" rows="2"></textarea>
+          </label>
+        </div>
+
+        <div class="measurement-actions">
+          <button id="measurement-zoom" class="measurement-button" type="button">Zoom målepunkt</button>
+          <button class="measurement-button primary" type="submit">Klargjør rad</button>
+        </div>
+
+        <textarea id="measurement-output" class="measurement-output" rows="3" readonly placeholder="Klargjort CSV-rad vises her"></textarea>
+      </form>
+    </section>
+    <section class="map-type-dock" aria-label="Karttype">
+      <div class="brand-mark dock-logo" aria-hidden="true">
+        <img src="images/dsa_logo.svg" alt="" />
+      </div>
+      <div class="map-type-buttons">
+        <button class="map-type-button" type="button" data-base-map="osm">OSM</button>
+        <button class="map-type-button" type="button" data-base-map="topo">Topo</button>
+        <button class="map-type-button" type="button" data-base-map="satellite">Sat</button>
+        <button class="map-type-button" type="button" data-base-map="cartoLight">Lys</button>
+        <button id="zoom-all" class="map-type-button map-action-button" type="button">Alle</button>
+        <select id="client-focus" class="client-focus-select" aria-label="Zoom til bruker">
+          <option value="">Bruker</option>
+        </select>
+      </div>
+    </section>
+  </main>
+
+  <script src="fieldpos.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+# Python environments and generated files
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Local credentials and private keys (never image inputs)
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.pfx
+*.p12
+/secrets/
+
+# Local runtime data, mounts and test/build output.
+# Keep app/static/data/: those are required, versioned map resources.
+/data/
+/runtime/
+/online2/
+/state/
+/tmp/
+/logs/
+*.log
+
+# Authoritative configuration lives on the mounted share; never commit it.
+/config/*
+!/config/.gitkeep
+
+# Editor and OS metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="fieldpos-version" content="20260629-1" />
+  <title>HPTrax FieldPos</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="fieldpos.css?v=20260628-12" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand-block">
+      <div>
+        <p class="kicker">DSA Field Nexus</p>
+        <h1>Modul: FieldPos</h1>
+      </div>
+    </div>
+    <nav class="module-nav" aria-label="Måledata">
+      <button id="admin-mode-indicator" class="admin-mode-indicator" type="button" hidden aria-label="Adminmodus aktiv">admin</button>
+      <button class="module-button" type="button" data-view-target="measure-a">A</button>
+      <button id="clear-measurements-button" class="module-button" type="button">B</button>
+      <button class="module-button back-button" type="button" data-view-target="map" hidden>Tilbake</button>
+    </nav>
+    <div class="status-panel" aria-live="polite">
+      <img class="status-symbol" src="images/radiaktivitet03.png" alt="" aria-hidden="true" />
+      <span id="status-text">Av</span>
+      <button id="gps-toggle" class="gps-button" type="button" title="Send min posisjon">S</button>
+    </div>
+  </header>
+
+  <main class="map-shell">
+    <section id="layout-settings-panel" class="layout-settings-panel" aria-label="Sideinnstillinger" hidden>
+      <div class="layout-settings-header">
+        <strong>Innstillinger</strong>
+        <button id="layout-settings-close" class="layout-settings-close" type="button" aria-label="Lukk">×</button>
+      </div>
+      <div class="layout-settings-grid">
+        <label class="checkbox-field">
+          <input id="layout-place-names-toggle" type="checkbox" checked />
+          Stedsnavn
+        </label>
+        <label class="checkbox-field">
+          <input id="layout-kommuner-toggle" type="checkbox" checked />
+          Kommuner
+        </label>
+        <label class="checkbox-field">
+          <input id="layout-radnett-toggle" type="checkbox" checked />
+          Radnett
+        </label>
+        <label class="checkbox-field">
+          <input id="layout-gamma-toggle" type="checkbox" disabled />
+          Ambient gamma
+        </label>
+        <label>
+          Epostadresse
+          <input id="report-email" type="email" value="opbitlab@dsa.no" autocomplete="email" />
+        </label>
+        <label>
+          Intervall [min]
+          <input id="report-interval" type="number" min="1" step="1" value="60" inputmode="numeric" />
+        </label>
+      </div>
+      <div class="layout-settings-actions">
+        <button id="report-save" class="measurement-button primary" type="button">Lukk</button>
+        <button id="geiger-window-open" class="measurement-button" type="button">Geiger</button>
+        <button id="report-send-now" class="measurement-button" type="button">Send epost nå</button>
+        <button id="report-interval-toggle" class="measurement-button" type="button">Start intervall</button>
+      </div>
+      <div id="report-status" class="layout-settings-status" aria-live="polite"></div>
+    </section>
+    <section id="met-wind-reference-panel" class="layout-settings-panel met-wind-reference-panel" aria-label="Vindreferanser" hidden>
+      <div class="layout-settings-header">
+        <strong>Vindreferanser</strong>
+        <div class="met-wind-admin-actions">
+          <button id="met-wind-admin-logout" class="measurement-button" type="button">Avslutt admin</button>
+          <button id="met-wind-reference-close" class="layout-settings-close" type="button" aria-label="Lukk">×</button>
+        </div>
+      </div>
+      <div class="met-wind-choice-table" aria-label="Vindområde og detaljgrad">
+        <input id="met-wind-grid-step" type="hidden" value="5" />
+        <input id="met-wind-radius" type="hidden" value="25" />
+        <div class="met-wind-choice-head">Radius</div>
+        <div class="met-wind-choice-head">Lav</div>
+        <div class="met-wind-choice-head">Normal</div>
+        <div class="met-wind-choice-head">Høy</div>
+        <div class="met-wind-choice-head">Maks</div>
+
+        <div class="met-wind-choice-radius">10 km</div>
+        <button class="met-wind-choice" type="button" data-radius-km="10" data-grid-step-km="5">5 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="10" data-grid-step-km="2">2 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="10" data-grid-step-km="1">1 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="10" data-grid-step-km="0.5">0,5 km</button>
+
+        <div class="met-wind-choice-radius">25 km</div>
+        <button class="met-wind-choice" type="button" data-radius-km="25" data-grid-step-km="10">10 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="25" data-grid-step-km="5">5 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="25" data-grid-step-km="2">2 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="25" data-grid-step-km="1">1 km</button>
+
+        <div class="met-wind-choice-radius">50 km</div>
+        <button class="met-wind-choice" type="button" data-radius-km="50" data-grid-step-km="20">20 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="50" data-grid-step-km="10">10 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="50" data-grid-step-km="5">5 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="50" data-grid-step-km="2">2 km</button>
+
+        <div class="met-wind-choice-radius">100 km</div>
+        <button class="met-wind-choice" type="button" data-radius-km="100" data-grid-step-km="25">25 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="100" data-grid-step-km="20">20 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="100" data-grid-step-km="10">10 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="100" data-grid-step-km="5">5 km</button>
+
+        <div class="met-wind-choice-radius">250 km</div>
+        <button class="met-wind-choice" type="button" data-radius-km="250" data-grid-step-km="50">50 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="250" data-grid-step-km="25">25 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="250" data-grid-step-km="10">10 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="250" data-grid-step-km="5">5 km</button>
+
+        <div class="met-wind-choice-radius">500 km</div>
+        <button class="met-wind-choice" type="button" data-radius-km="500" data-grid-step-km="100">100 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="500" data-grid-step-km="50">50 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="500" data-grid-step-km="25">25 km</button>
+        <button class="met-wind-choice" type="button" data-radius-km="500" data-grid-step-km="10">10 km</button>
+      </div>
+      <div class="met-wind-popup-scale" aria-label="Vindstyrke fargeskala">
+        <strong>Vindstyrke</strong>
+        <div class="met-wind-scale">
+          <div class="met-wind-scale-row"><span style="background:#d8f3ff"></span><em>0-0.2 m/s · Stille</em></div>
+          <div class="met-wind-scale-row"><span style="background:#8fd3ff"></span><em>0.3-1.5 m/s · Flau vind</em></div>
+          <div class="met-wind-scale-row"><span style="background:#36b9ff"></span><em>1.6-3.3 m/s · Svak vind</em></div>
+          <div class="met-wind-scale-row"><span style="background:#39d88a"></span><em>3.4-5.4 m/s · Lett bris</em></div>
+          <div class="met-wind-scale-row"><span style="background:#b8e03f"></span><em>5.5-7.9 m/s · Laber bris</em></div>
+          <div class="met-wind-scale-row"><span style="background:#ffe14a"></span><em>8.0-10.7 m/s · Frisk bris</em></div>
+          <div class="met-wind-scale-row"><span style="background:#ff9d2e"></span><em>10.8-13.8 m/s · Liten kuling</em></div>
+          <div class="met-wind-scale-row"><span style="background:#ff5b2e"></span><em>13.9-17.1 m/s · Stiv kuling</em></div>
+          <div class="met-wind-scale-row"><span style="background:#e51f2f"></span><em>17.2-20.7 m/s · Sterk kuling</em></div>
+          <div class="met-wind-scale-row"><span style="background:#b00070"></span><em>20.8-24.4 m/s · Liten storm</em></div>
+          <div class="met-wind-scale-row"><span style="background:#5b168f"></span><em>&gt;= 24.5 m/s · Storm+</em></div>
+        </div>
+      </div>
+      <div class="layout-settings-actions">
+        <button id="met-wind-reference-all" class="measurement-button" type="button">Alle</button>
+        <button id="met-wind-reference-none" class="measurement-button" type="button">Ingen</button>
+        <button id="met-wind-reference-save" class="measurement-button primary" type="button">Lagre og hent</button>
+      </div>
+      <div class="met-wind-status-group" aria-live="polite">
+        <div id="met-wind-grid-status" class="layout-settings-status">Valgt: 5 km</div>
+        <div id="met-wind-radius-status" class="layout-settings-status">Valgt: 25 km</div>
+        <div id="met-wind-reference-status" class="layout-settings-status"></div>
+      </div>
+      <label class="met-wind-visible-close">
+        <input id="met-wind-visible-on-close" type="checkbox" checked />
+        Vis nearby-vind når panelet lukkes
+      </label>
+      <div class="met-wind-map-pick">
+        <button id="met-wind-map-pick-button" class="measurement-button" type="button">Velg punkt i kart</button>
+      </div>
+      <div id="met-wind-reference-list" class="met-wind-reference-list" aria-live="polite"></div>
+    </section>
+    <div id="map-home-slot" class="map-home-slot">
+      <div id="map"></div>
+    </div>
+    <section id="measurement-a-panel" class="measurement-panel" aria-label="Måledata A" hidden>
+      <form id="measurement-a-form" class="measurement-form">
+        <div class="measurement-heading">
+          <div>
+            <p class="measurement-kicker">Manuell registrering</p>
+            <h2>Måledata A</h2>
+          </div>
+          <button id="measurement-now" class="measurement-button" type="button">Tid nå</button>
+        </div>
+
+        <div class="measurement-top">
+          <div class="measurement-side-fields">
+            <label>
+              GPS
+              <input id="measure-gps-status" type="text" value="Av" readonly />
+            </label>
+            <label>
+              Stasjon
+              <input id="measure-station-name" name="station_name" type="text" required placeholder="F.eks. Lag 1" />
+            </label>
+            <label>
+              Instrumentnr.
+              <input id="measure-instrument" name="instrument_number" type="text" />
+            </label>
+            <label>
+              Målepunkt-ID
+              <input id="measure-point-id" name="measuring_point_id" type="text" placeholder="000119" />
+            </label>
+          </div>
+          <div id="measurement-map-slot" class="measurement-map-slot"></div>
+        </div>
+
+        <div class="measurement-grid">
+          <label>
+            Hendelse
+            <input id="measure-event" name="event" type="text" value="Sivilforsvaret" />
+          </label>
+          <label>
+            Doserate [Sv/h]
+            <input id="measure-doserate" name="doserate" type="number" step="any" inputmode="decimal" placeholder="5.9e-08" />
+          </label>
+          <label>
+            Tidspunkt
+            <input id="measure-timestamp" name="timestamp" type="datetime-local" readonly />
+          </label>
+          <label>
+            Målehøyde [m]
+            <input id="measure-height" name="measurement_height" type="number" step="0.1" inputmode="decimal" placeholder="1.0" />
+          </label>
+          <label>
+            Måletype
+            <input id="measure-type" name="measurement_type" type="text" value="FOT" />
+          </label>
+          <label>
+            Lengdegrad
+            <input id="measure-lon" name="longitude" type="number" step="any" inputmode="decimal" placeholder="10.7522" />
+          </label>
+          <label>
+            Breddegrad
+            <input id="measure-lat" name="latitude" type="number" step="any" inputmode="decimal" placeholder="59.9139" />
+          </label>
+          <label>
+            Målepunktnavn
+            <input id="measure-point-name" name="measuring_point_name" type="text" placeholder="Folkeparken, Kristiansund" />
+          </label>
+          <label>
+            Sesjon
+            <input id="measure-session" name="session" type="text" placeholder="PLIS PL02752" />
+          </label>
+          <label>
+            Lag
+            <input id="measure-team" name="team" type="text" value="DSB RADIAK PLIS" />
+          </label>
+          <label>
+            Snødybde [m]
+            <input id="measure-snow" name="snow_depth" type="number" step="0.01" inputmode="decimal" />
+          </label>
+          <label class="checkbox-field">
+            <input id="measure-rainfall" name="rainfall" type="checkbox" />
+            Nedbør
+          </label>
+          <label class="wide-field">
+            Kommentar
+            <textarea id="measure-comment" name="comment" rows="2"></textarea>
+          </label>
+        </div>
+
+        <div class="measurement-actions">
+          <button id="measurement-zoom" class="measurement-button" type="button">Zoom målepunkt</button>
+          <button id="measurement-send" class="measurement-button primary" type="submit">Send inn</button>
+        </div>
+
+        <textarea id="measurement-output" class="measurement-output" rows="3" readonly placeholder="Siste klargjorte rad vises her"></textarea>
+      </form>
+    </section>
+    <section id="measurement-b-panel" class="measurement-panel placeholder-panel" aria-label="Måledata B" hidden>
+      <div class="measurement-form">
+        <div class="measurement-heading">
+          <div>
+            <p class="measurement-kicker">Klargjort modul</p>
+            <h2>Måledata B</h2>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="map-type-dock" aria-label="Karttype">
+      <div class="brand-mark dock-logo" aria-hidden="true">
+        <img src="images/dsa_logo.svg?v=20260627-2" alt="" />
+      </div>
+      <div class="map-type-buttons">
+        <button class="map-type-button" type="button" data-base-map="osm">OSM</button>
+        <button class="map-type-button" type="button" data-base-map="topo">Topo</button>
+        <button class="map-type-button" type="button" data-base-map="satellite">Sat</button>
+        <button class="map-type-button" type="button" data-base-map="cartoLight">Lys</button>
+        <button id="zoom-all" class="map-type-button map-action-button" type="button">Målinger alle</button>
+        <button id="zoom-norway" class="map-type-button map-action-button" type="button">Norge</button>
+        <button id="zoom-box" class="map-type-button map-action-button" type="button">Velg område</button>
+        <button id="place-names-dock-toggle" class="map-type-button map-action-button" type="button">Innstillinger</button>
+        <button id="kommuner-demografi-dock-toggle" class="map-type-button map-action-button wide-map-button" type="button">Kommuner</button>
+        <button id="radnett-stations-dock-toggle" class="map-type-button map-action-button" type="button">Radnett</button>
+        <button id="ambient-gamma-dock-toggle" class="map-type-button map-action-button" type="button" disabled aria-disabled="true">Gamma</button>
+        <button id="met-wind-dock-toggle" class="map-type-button map-action-button" type="button" title="Klikk: vis/skjul nearby-vind. Dobbeltklikk: vindadmin.">Vind</button>
+        <button id="met-wind-area-dock-toggle" class="map-type-button map-action-button" type="button">Norge vind</button>
+        <select id="client-focus" class="client-focus-select" aria-label="Zoom til bruker">
+          <option value="">Aktive noder</option>
+        </select>
+        <select id="measurement-focus" class="client-focus-select" aria-label="Zoom til måling">
+          <option value="">Målinger zoom</option>
+        </select>
+      </div>
+    </section>
+  </main>
+
+  <script src="01_placeNames.js?v=20260627-2"></script>
+  <script src="02_kartinfo.js?v=20260628-1"></script>
+  <script src="03_kommuner_demografi.js?v=20260628-2"></script>
+  <script src="04_radnettStations.js?v=20260627-2"></script>
+  <script src="05_ambient-gamma-layer.js?v=20260628-1"></script>
+  <script src="06_met_wind_layer.js?v=20260628-18"></script>
+  <script src="fieldpos.js?v=20260629-1"></script>
+</body>
+</html>

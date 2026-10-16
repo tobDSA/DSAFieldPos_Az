@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "wind": {
+    "enabled": false,
+    "norwayWindEnabled": false,
+    "gridMode": "nearbyPoints",
+    "refreshMinutes": 5,
+    "gridStepKm": 5,
+    "nearbyRadiusKm": 25,
+    "maxGridPoints": 600,
+    "requestTimeoutSeconds": 6,
+    "userAgent": "DSAFieldPos_Az/1.0"
+  },
+  "mail": {
+    "enabled": false,
+    "transport": "off"
+  }
+}
