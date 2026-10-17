@@ -56,6 +56,20 @@
   const labels = [...form.querySelectorAll("label")];
   const stationLabel = document.getElementById("measure-station-name").closest("label");
   const timeLabel = document.getElementById("measure-timestamp").closest("label");
+  const operator = document.getElementById("measure-event");
+  const operatorLabel = operator.closest("label");
+  operatorLabel.firstChild.textContent = "Operatør\n";
+  const pointName = document.getElementById("measure-point-name");
+  const pointNameLabel = pointName.closest("label");
+  for (const id of ["measure-event", "measure-type", "measure-team", "measure-session", "measure-point-name"]) {
+    const input = document.getElementById(id);
+    input.value = "";
+    input.removeAttribute("required");
+    input.placeholder = "<fyll inn>";
+  }
+  for (const input of form.querySelectorAll('input:not([readonly]):not([type="checkbox"]), textarea')) {
+    if (input.id !== "measure-station-name") input.placeholder = "<fyll inn>";
+  }
   const storedDose = document.getElementById("measure-doserate");
   storedDose.closest("label").hidden = true;
   const headingBlock = form.querySelector(".measurement-heading");
@@ -74,15 +88,14 @@
   positionSummary.className = "mobile-position-summary";
   positionSummary.id = "mobile-position-summary";
   positionSummary.textContent = "Posisjon fylles fra GPS eller ved markering på dosimeteret.";
-  essentials.append(stationLabel, doseLabel, timeLabel, positionSummary);
-  const details = document.createElement("details");
-  details.className = "mobile-measurement-details";
-  const summary = document.createElement("summary");
-  summary.textContent = "Flere felt / posisjon";
+  essentials.append(stationLabel, operatorLabel, pointNameLabel, doseLabel, timeLabel, positionSummary);
+  const details = document.createElement("section");
+  details.className = "mobile-measurement-parameters";
+  details.setAttribute("aria-label", "Valgfrie parametere");
   const detailFields = document.createElement("div");
   detailFields.className = "mobile-detail-fields";
-  detailFields.append(...labels.filter(label => ![stationLabel, timeLabel].includes(label)));
-  details.append(summary, detailFields);
+  detailFields.append(...labels.filter(label => ![stationLabel, operatorLabel, pointNameLabel, timeLabel].includes(label)));
+  details.append(detailFields);
   const actions = document.createElement("div");
   actions.className = "mobile-submit-bar";
   const sendStatus = document.createElement("p");
@@ -105,7 +118,6 @@
     displayDose.value = String(draft.readingMicroSvH);
     positionSummary.textContent = `${draft.position.simulated ? "Simulert posisjon" : "GPS-posisjon"}: ${Number(draft.position.lat).toFixed(5)}, ${Number(draft.position.lon).toFixed(5)}`;
     form.querySelector(".measurement-kicker").textContent = "Markert fra treningssimulator";
-    details.open = false;
     sendStatus.textContent = "Klar til innsending";
     delete sendStatus.dataset.state;
     scrollArea.scrollTop = 0;

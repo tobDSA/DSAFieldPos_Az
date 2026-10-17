@@ -176,3 +176,14 @@ simulatorens demoposisjon med tydelig merking i skjema og kommentar. Doseraten
 omregnes fra µSv/h til Sv/h for eksisterende API/CSV. Ingen automatisk innsending;
 brukeren trykker Send inn og får en bekreftelse. Frittstående dosimeter overfører
 markeringen via sessionStorage til `/mobile?view=measure-a`.
+
+### Oppdatering av mobilfelter og GPS-navn
+
+Ved hver GPS-aktivering vises valgt navn i en bekreftelsesdialog som kan redigeres.
+Avbryt starter ikke GPS. Mobilskjemaet viser alle parametere fortløpende uten
+sammenleggbare felt. Operatør (tidligere etikett Hendelse) og Målepunktnavn er
+flyttet opp etter stasjon. Operatør, Målepunktnavn, Sesjon, Lag og Måletype starter
+uten forhåndsverdi og har hjelpeteksten «<fyll inn>». Disse feltene er valgfrie.
+Den gamle FOT-standardverdien er fjernet; ingen definisjon av koden finnes i
+programkoden. API-feltet `event` beholdes for kompatibilitet med eksisterende
+måleformat, men vises som Operatør i mobilskjemaet.

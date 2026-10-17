@@ -1207,15 +1207,11 @@
   }
 
   function askNameIfNeeded() {
-    try {
-      const current = window.localStorage.getItem("fieldposDisplayName") || "";
-      if (current) return current;
-      const next = (window.prompt("Navn som vises på kartet:", "") || "").trim().slice(0, 24);
-      if (next) setOwnName(next);
-      return next || "Min pos";
-    } catch (err) {
-      return "Min pos";
-    }
+    const current = ownName() === "Min pos" ? "" : ownName();
+    const answer = window.prompt("Bekreft navnet som skal vises på kartet:", current);
+    if (answer === null) return null;
+    const next = answer.trim().slice(0, 24);
+    return setOwnName(next || current || "Mobil");
   }
 
   function positionFromGeolocation(position) {
@@ -1877,7 +1873,7 @@
     const pos = measurementPosition();
     if (!pos) {
       if (measurementOutput) measurementOutput.value = "Mangler gyldig breddegrad/lengdegrad.";
-      window.dispatchEvent(new CustomEvent("fieldpos:measurement-result", {detail: {ok: false, message: "Mangler posisjon. Åpne Flere felt eller marker fra dosimeteret."}}));
+      window.dispatchEvent(new CustomEvent("fieldpos:measurement-result", {detail: {ok: false, message: "Mangler posisjon. Fyll inn koordinater eller marker fra dosimeteret."}}));
       return;
     }
 
@@ -2049,7 +2045,7 @@
       return;
     }
 
-    askNameIfNeeded();
+    if (askNameIfNeeded() === null) return;
     state.enabled = true;
     state.firstFix = true;
     setStatus("Venter", "waiting");

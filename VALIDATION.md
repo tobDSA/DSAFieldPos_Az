@@ -66,3 +66,12 @@ Send inn er synlige uten scrolling; ekstra felt kan åpnes og rulles separat.
 Lokal testinnsending verifiserte at 0,64 µSv/h lagres som 6,4e-7 Sv/h, med
 instrument LCGT-01 og tydelig kommentar om treningssimulator/simulert posisjon.
 Ni backend-tester og JavaScript-syntaks består. Ingen deploy utført.
+
+## GPS-navn og fortløpende parametere
+
+Navnefunksjonen er kontrollert med eksisterende navn: dialogen kalles ved hver
+aktivering, med navnet forhåndsutfylt; avbryt returnerer uten å starte GPS.
+Mobilskjema er kontrollert i nettleser ved 390 × 844: Operatør og Målepunktnavn
+står høyt, alle parametere vises uten «Flere felt», og en markert testmåling ble
+sendt inn med tomme Operatør-/Sesjon-/Lag-/Måletype-felt. Hjelpeteksten er
+«<fyll inn>», ikke en lagret verdi.

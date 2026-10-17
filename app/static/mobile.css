@@ -223,3 +223,4 @@ body.mobile-view:not(.measurement-active) .map-home-slot {
   width: 100%; min-height: 48px; border: 0; border-radius: 10px;
   background: #ffb72c; color: #080c12; font: 750 16px system-ui, sans-serif;
 }
+.mobile-measurement-parameters { margin-top: 14px; padding-top: 12px; border-top: 1px solid #617584; }
