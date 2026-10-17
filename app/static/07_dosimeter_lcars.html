@@ -1013,6 +1013,7 @@
         return 0.45 + slowRise + wave + Math.random() * 0.12;
       });
       const events = [];
+      let position = {lat: 59.9132, lon: 10.7581, simulated: true};
       let running = false;
       let current = history[history.length - 1];
       let maxValue = Math.max(...history);
@@ -1178,6 +1179,7 @@
         }
         gpsEl.textContent = "Soker";
         navigator.geolocation.getCurrentPosition((pos) => {
+          position = {lat: pos.coords.latitude, lon: pos.coords.longitude, simulated: false};
           gpsEl.textContent = "3D fix";
           gpsEl.className = "ok";
           posLatEl.textContent = `${pos.coords.latitude.toFixed(4)} N`;
@@ -1209,6 +1211,20 @@
 
       markButton.addEventListener("click", () => {
         addEvent("Manuell markering", current);
+        const measurement = {
+          type: "fieldpos:mark-measurement",
+          readingMicroSvH: Number(formatValue(current)),
+          timestamp: new Date().toISOString(),
+          position: {...position},
+          instrument: "LCGT-01",
+          simulator: true
+        };
+        if (window.parent !== window) {
+          window.parent.postMessage(measurement, window.location.origin);
+        } else {
+          window.sessionStorage.setItem("fieldposPendingMeasurement", JSON.stringify(measurement));
+          window.location.href = "/mobile?view=measure-a";
+        }
       });
 
       addEvent("System check OK", 0.07);

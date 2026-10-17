@@ -161,3 +161,18 @@ beholdes, inkludert gullfeltet for NEXUS ONLINE uten gråtoning.
 Skjema, feltverdier og kart/GPS beholdes ved bytting mellom instrument og skjema.
 Skjemaet ruller separat på små skjermer. Direkte åpning av skjemaet støttes på
 `/mobile?view=measure-a`. Den frittstående dosimetersiden lenker også dit.
+
+### Rask registrering fra simulatoren
+
+Mobilskjemaet viser stasjon, doserate i µSv/h, tidspunkt og posisjon. Kartet er
+fjernet fra skjemaet. Øvrige opprinnelige felt finnes under «Flere felt / posisjon»;
+kun skjemainnholdet ruller, mens Send inn ligger fast nederst.
+
+«MARKER hendelse» tar et øyeblikksbilde av simulatorens viste verdi og tidspunkt,
+åpner Måleskjema og fyller inn instrument og posisjon. Det virker før Start,
+under kjøring og etter Stopp. Verdien og tidspunktet holdes fast mens skjemaet
+fylles ut. Reell GPS fra kart/instrument brukes når tilgjengelig, ellers brukes
+simulatorens demoposisjon med tydelig merking i skjema og kommentar. Doseraten
+omregnes fra µSv/h til Sv/h for eksisterende API/CSV. Ingen automatisk innsending;
+brukeren trykker Send inn og får en bekreftelse. Frittstående dosimeter overfører
+markeringen via sessionStorage til `/mobile?view=measure-a`.

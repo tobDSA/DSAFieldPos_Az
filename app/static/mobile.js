@@ -52,6 +52,69 @@
   panel.setAttribute("aria-label", "Måleskjema");
   panel.querySelector("h2").textContent = "Måleskjema";
   measurementHost.append(panel);
+  const form = document.getElementById("measurement-a-form");
+  const labels = [...form.querySelectorAll("label")];
+  const stationLabel = document.getElementById("measure-station-name").closest("label");
+  const timeLabel = document.getElementById("measure-timestamp").closest("label");
+  const storedDose = document.getElementById("measure-doserate");
+  storedDose.closest("label").hidden = true;
+  const headingBlock = form.querySelector(".measurement-heading");
+  headingBlock.querySelector(".measurement-kicker").textContent = "Registrer måling";
+  const essentials = document.createElement("div");
+  essentials.className = "mobile-measurement-essentials";
+  const doseLabel = document.createElement("label");
+  doseLabel.className = "mobile-dose-field";
+  doseLabel.innerHTML = 'Doserate <span class="mobile-dose-input"><input id="mobile-dose-rate" type="number" min="0" step="any" inputmode="decimal" required><span>µSv/h</span></span>';
+  const displayDose = doseLabel.querySelector("input");
+  displayDose.value = storedDose.value ? String(Number(storedDose.value) * 1e6) : "";
+  displayDose.addEventListener("input", () => {
+    storedDose.value = displayDose.value === "" ? "" : String(Number((Number(displayDose.value) * 1e-6).toPrecision(12)));
+  });
+  const positionSummary = document.createElement("p");
+  positionSummary.className = "mobile-position-summary";
+  positionSummary.id = "mobile-position-summary";
+  positionSummary.textContent = "Posisjon fylles fra GPS eller ved markering på dosimeteret.";
+  essentials.append(stationLabel, doseLabel, timeLabel, positionSummary);
+  const details = document.createElement("details");
+  details.className = "mobile-measurement-details";
+  const summary = document.createElement("summary");
+  summary.textContent = "Flere felt / posisjon";
+  const detailFields = document.createElement("div");
+  detailFields.className = "mobile-detail-fields";
+  detailFields.append(...labels.filter(label => ![stationLabel, timeLabel].includes(label)));
+  details.append(summary, detailFields);
+  const actions = document.createElement("div");
+  actions.className = "mobile-submit-bar";
+  const sendStatus = document.createElement("p");
+  sendStatus.id = "mobile-send-status";
+  sendStatus.setAttribute("role", "status");
+  const sendButton = document.getElementById("measurement-send");
+  actions.append(sendStatus, sendButton);
+  // Original form controls and names stay intact for the existing API/CSV payload.
+  const output = document.getElementById("measurement-output");
+  output.hidden = true;
+  document.getElementById("measurement-map-slot").hidden = true;
+  const scrollArea = document.createElement("div");
+  scrollArea.className = "mobile-form-scroll";
+  scrollArea.append(headingBlock, essentials, details, output);
+  form.replaceChildren(scrollArea, actions);
+  headingBlock.querySelector("#measurement-now").hidden = true;
+
+  window.addEventListener("fieldpos:measurement-prepared", event => {
+    const draft = event.detail;
+    displayDose.value = String(draft.readingMicroSvH);
+    positionSummary.textContent = `${draft.position.simulated ? "Simulert posisjon" : "GPS-posisjon"}: ${Number(draft.position.lat).toFixed(5)}, ${Number(draft.position.lon).toFixed(5)}`;
+    form.querySelector(".measurement-kicker").textContent = "Markert fra treningssimulator";
+    details.open = false;
+    sendStatus.textContent = "Klar til innsending";
+    delete sendStatus.dataset.state;
+    scrollArea.scrollTop = 0;
+  });
+  window.addEventListener("fieldpos:measurement-result", event => {
+    sendStatus.textContent = event.detail.message;
+    sendStatus.dataset.state = event.detail.ok ? "success" : "error";
+  });
+
   const viewButtons = dialog.querySelectorAll("[data-instrument-view]");
 
   function selectInstrument(view) {
@@ -60,6 +123,7 @@
     frame.hidden = measurement;
     viewButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.instrumentView === view)));
     window.dispatchEvent(new CustomEvent("fieldpos:set-view", {detail: measurement ? "measure-a" : "map"}));
+    if (measurement) window.dispatchEvent(new CustomEvent("fieldpos:measurement-position"));
     if (!measurement && frame.getAttribute("src") === "about:blank") {
       frame.src = "/mobile/dosimeter?embedded=1";
     }
@@ -75,6 +139,28 @@
     measurementHost.hidden = true;
     dosimeter.focus();
   });
+  function prepareMarkedMeasurement(draft) {
+    if (!draft || draft.type !== "fieldpos:mark-measurement" ||
+        !Number.isFinite(draft.readingMicroSvH) || draft.readingMicroSvH < 0 ||
+        !Number.isFinite(draft.position?.lat) || Math.abs(draft.position.lat) > 90 ||
+        !Number.isFinite(draft.position?.lon) || Math.abs(draft.position.lon) > 180 ||
+        !Number.isFinite(Date.parse(draft.timestamp))) return;
+    if (!dialog.open) dialog.showModal();
+    selectInstrument("measurement");
+    window.dispatchEvent(new CustomEvent("fieldpos:prepare-measurement", {detail: draft}));
+  }
+  window.addEventListener("message", event => {
+    if (event.origin !== window.location.origin || event.source !== frame.contentWindow) return;
+    prepareMarkedMeasurement(event.data);
+  });
+  try {
+    const pending = window.sessionStorage.getItem("fieldposPendingMeasurement");
+    if (pending) {
+      window.sessionStorage.removeItem("fieldposPendingMeasurement");
+      prepareMarkedMeasurement(JSON.parse(pending));
+    }
+  } catch (error) { console.warn("Kunne ikke hente markert måling", error); }
+
   if (new URLSearchParams(window.location.search).get("view") === "measure-a") {
     dialog.showModal();
     selectInstrument("measurement");

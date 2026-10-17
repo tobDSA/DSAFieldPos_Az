@@ -17,6 +17,7 @@
   let loadedIndexSignature = "";
 
   const state = {
+    measurementDraftLocked: false,
     enabled: false,
     watchId: null,
     position: null,
@@ -321,7 +322,7 @@
       else appTitle.textContent = "Modul: FieldPos";
     }
 
-    const nextMapParent = isMeasureA ? measurementMapSlot : mapHomeSlot;
+    const nextMapParent = isMeasureA && !document.body.classList.contains("mobile-view") ? measurementMapSlot : mapHomeSlot;
     if (mapElement && nextMapParent && mapElement.parentElement !== nextMapParent) {
       nextMapParent.appendChild(mapElement);
     }
@@ -1240,7 +1241,7 @@
   }
 
   function updateMeasurementClock() {
-    if (measurementTimestampInput) {
+    if (measurementTimestampInput && !state.measurementDraftLocked) {
       measurementTimestampInput.value = localDateTimeValue();
     }
   }
@@ -1260,6 +1261,7 @@
 
   function measurementPosition() {
     if (!measurementLatInput || !measurementLonInput) return null;
+    if (!measurementLatInput.value.trim() || !measurementLonInput.value.trim()) return null;
     const lat = Number(measurementLatInput.value);
     const lon = Number(measurementLonInput.value);
     return validLatLon(lat, lon) ? { lat, lon } : null;
@@ -1294,7 +1296,7 @@
   }
 
   function fillMeasurementPosition(pos) {
-    if (!measurementLatInput || !measurementLonInput || !pos || state.currentView !== "measure-a") return;
+    if (!measurementLatInput || !measurementLonInput || !pos || state.currentView !== "measure-a" || state.measurementDraftLocked) return;
     measurementLatInput.value = Number(pos.lat).toFixed(8);
     measurementLonInput.value = Number(pos.lon).toFixed(8);
     updateMeasurementMarker(false);
@@ -1875,6 +1877,7 @@
     const pos = measurementPosition();
     if (!pos) {
       if (measurementOutput) measurementOutput.value = "Mangler gyldig breddegrad/lengdegrad.";
+      window.dispatchEvent(new CustomEvent("fieldpos:measurement-result", {detail: {ok: false, message: "Mangler posisjon. Åpne Flere felt eller marker fra dosimeteret."}}));
       return;
     }
 
@@ -1901,9 +1904,11 @@
         state.measurementMarker = null;
       }
       if (measurementOutput) measurementOutput.value = csvRow;
+      window.dispatchEvent(new CustomEvent("fieldpos:measurement-result", {detail: {ok: true, message: "Målingen er sendt inn."}}));
     } catch (err) {
       console.warn("[fieldpos] måling feilet", err);
       if (measurementOutput) measurementOutput.value = `Sending feilet: ${err.message}`;
+      window.dispatchEvent(new CustomEvent("fieldpos:measurement-result", {detail: {ok: false, message: "Innsending feilet. Prøv igjen."}}));
     }
   }
 
@@ -2216,6 +2221,35 @@
 
   window.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") closeMeasurementDetails();
+  });
+
+  window.addEventListener("fieldpos:measurement-position", () => {
+    if (!state.measurementDraftLocked && state.position) fillMeasurementPosition(state.position);
+  });
+
+  window.addEventListener("fieldpos:prepare-measurement", event => {
+    if (!document.body.classList.contains("mobile-view")) return;
+    let draft = event.detail;
+    if (!draft || !Number.isFinite(draft.readingMicroSvH) || draft.readingMicroSvH < 0 ||
+        !validLatLon(draft.position?.lat, draft.position?.lon) || !Number.isFinite(Date.parse(draft.timestamp))) return;
+    if (draft.position.simulated && state.position && validLatLon(state.position.lat, state.position.lon)) {
+      draft = {...draft, position: {lat: state.position.lat, lon: state.position.lon, simulated: false}};
+    }
+    state.measurementDraftLocked = true;
+    measurementLatInput.value = String(draft.position.lat);
+    measurementLonInput.value = String(draft.position.lon);
+    const date = new Date(draft.timestamp);
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    measurementTimestampInput.value = local;
+    document.getElementById("measure-doserate").value = String(Number((draft.readingMicroSvH * 1e-6).toPrecision(12)));
+    document.getElementById("measure-instrument").value = draft.instrument;
+    if (!stationNameInput.value.trim()) stationNameInput.value = ownName() === "Min pos" ? "Mobil" : ownName();
+    const comment = document.getElementById("measure-comment");
+    const note = draft.position.simulated ? "Treningssimulator; simulert posisjon" : "Treningssimulator";
+    comment.value = comment.value.replace(/(?:^|\n)Treningssimulator[^\n]*/g, "").trim();
+    comment.value = [comment.value, note].filter(Boolean).join("\n");
+    if (measurementOutput) measurementOutput.value = "";
+    window.dispatchEvent(new CustomEvent("fieldpos:measurement-prepared", {detail: draft}));
   });
 
   window.addEventListener("fieldpos:set-view", event => {

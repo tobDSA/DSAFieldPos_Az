@@ -57,3 +57,12 @@ Dosimeter og Måleskjema, samt innsending av en syntetisk måling til lokal,
 midlertidig testlagring. Skjema og kart overlapper ikke. Dosimeterets tittel
 «AKTUELL STRÅLING» vises hel. Ni backend-tester og JavaScript-syntakskontroll
 består. Ingen Azure-deploy utført for denne endringen.
+
+## Forenklet mobilskjema og MARKER hendelse
+
+Nettleserkontroll 390 × 844: markering før start, under aktiv simulator og etter
+stopp åpner ferdig utfylt skjema. Kartet er fjernet fra skjemaet. Hovedfelter og
+Send inn er synlige uten scrolling; ekstra felt kan åpnes og rulles separat.
+Lokal testinnsending verifiserte at 0,64 µSv/h lagres som 6,4e-7 Sv/h, med
+instrument LCGT-01 og tydelig kommentar om treningssimulator/simulert posisjon.
+Ni backend-tester og JavaScript-syntaks består. Ingen deploy utført.

@@ -193,3 +193,33 @@ body.mobile-view:not(.measurement-active) .map-home-slot {
 .mobile-instrument-header h2 { min-width: 0; }
 .mobile-instrument-case::before,
 .mobile-instrument-case::after { max-width: none; }
+
+/* Compact input screen: only the form body scrolls; submit stays in reach. */
+#mobile-measurement-host { overflow: hidden; }
+#mobile-measurement-host .measurement-panel { height: 100%; padding: 8px; overflow: hidden; }
+#mobile-measurement-host .measurement-form { height: 100%; min-height: 0; gap: 0; }
+.mobile-form-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px; }
+.mobile-measurement-essentials { display: grid; gap: 10px; margin-top: 12px; }
+.mobile-measurement-essentials label, .mobile-detail-fields label {
+  display: grid; gap: 5px; font: 600 11px/1.3 system-ui, sans-serif; color: #aebac5;
+}
+#mobile-measurement-host input:not([type="checkbox"]), #mobile-measurement-host textarea {
+  width: 100%; border: 1px solid #617584; border-radius: 7px;
+  background: #0b1016; color: #f4f7fb; padding: 8px;
+}
+.mobile-dose-input { display: flex; align-items: center; gap: 8px; color: #f5c542; }
+#mobile-measurement-host #mobile-dose-rate { font-size: 28px; height: 58px; color: #f5c542; font-weight: 700; }
+.mobile-dose-input > span { flex-shrink: 0; font-size: 13px; }
+.mobile-position-summary { margin: 0; padding: 10px; border-left: 3px solid #849eb2; color: #b8c5d1; font: 11px/1.5 system-ui, sans-serif; }
+.mobile-measurement-details { margin: 14px 0 4px; border-top: 1px solid #617584; }
+.mobile-measurement-details summary { padding: 12px 0; cursor: pointer; color: #f5c542; font: 600 12px system-ui, sans-serif; }
+.mobile-detail-fields { display: grid; gap: 10px; }
+.mobile-submit-bar { flex-shrink: 0; border-top: 1px solid #617584; padding-top: 8px; background: #0b1016; }
+#mobile-send-status { margin: 0 0 6px; color: #b8c5d1; font: 11px/1.4 system-ui, sans-serif; }
+#mobile-send-status:empty { display: none; }
+#mobile-send-status[data-state="success"] { color: #56d66a; }
+#mobile-send-status[data-state="error"] { color: #ff9c87; }
+#mobile-measurement-host #measurement-send {
+  width: 100%; min-height: 48px; border: 0; border-radius: 10px;
+  background: #ffb72c; color: #080c12; font: 750 16px system-ui, sans-serif;
+}
