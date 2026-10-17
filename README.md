@@ -151,3 +151,13 @@ Direkteadresse til dosimeteret: `/mobile/dosimeter` (og med avsluttende
 `/`). Ingen innlogging kreves. Mobilknappen bruker også denne adressen.
 
 Mobilheader og sidetittel: `DSA FieldPos Mobile`.
+
+### Instrumentmeny på mobil
+
+Dosimeteret og Måleskjema (samme registrering/innsending som A-knappen) deler
+headeren «DSA FieldNexus» med «Til kartet» til høyre i det fargede feltet.
+Venstremenyen har Dosimeter øverst, Måleskjema under og de to deaktiverte demoknappene LOGG og NEXUS ONLINE. Originalpaletten
+beholdes, inkludert gullfeltet for NEXUS ONLINE uten gråtoning.
+Skjema, feltverdier og kart/GPS beholdes ved bytting mellom instrument og skjema.
+Skjemaet ruller separat på små skjermer. Direkte åpning av skjemaet støttes på
+`/mobile?view=measure-a`. Den frittstående dosimetersiden lenker også dit.

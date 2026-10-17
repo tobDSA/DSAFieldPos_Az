@@ -315,7 +315,8 @@
     });
 
     if (appTitle) {
-      if (isMeasureA) appTitle.textContent = "Modul: Måledata A";
+      if (document.body.classList.contains("mobile-view")) appTitle.textContent = "DSA FieldPos Mobile";
+      else if (isMeasureA) appTitle.textContent = "Modul: Måledata A";
       else if (isMeasureB) appTitle.textContent = "Modul: Måledata B";
       else appTitle.textContent = "Modul: FieldPos";
     }
@@ -2215,6 +2216,11 @@
 
   window.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") closeMeasurementDetails();
+  });
+
+  window.addEventListener("fieldpos:set-view", event => {
+    if (!document.body.classList.contains("mobile-view")) return;
+    if (["map", "measure-a"].includes(event.detail)) setView(event.detail);
   });
 
   setupBaseMapButtons();

@@ -49,3 +49,11 @@ Innlogging fjernet på brukerens anmodning. Alle sider og administrasjons-API-er
 åpnes uten konto/passord; tidligere beskrivelser av Basic-innlogging er historiske.
 Mobilheader og sidetittel er endret til «DSA FieldPos Mobile». Tester kontrollerer
 åpen tilgang uten miljøvariabler og korrekt header på begge mobilrutene.
+
+## Mobil instrumentmeny 2026-10-17
+
+Nettleserkontroll ved 390 × 844: felles header og fire venstrefelt, bytting mellom
+Dosimeter og Måleskjema, samt innsending av en syntetisk måling til lokal,
+midlertidig testlagring. Skjema og kart overlapper ikke. Dosimeterets tittel
+«AKTUELL STRÅLING» vises hel. Ni backend-tester og JavaScript-syntakskontroll
+består. Ingen Azure-deploy utført for denne endringen.

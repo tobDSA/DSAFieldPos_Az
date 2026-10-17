@@ -73,6 +73,19 @@ class ContainerTests(unittest.TestCase):
         for path in ('/mobile.css', '/mobile.js', '/07_dosimeter_lcars.html'):
             self.assertEqual(self.request(path)[0], 200)
 
+    def test_embedded_instrument_and_measurement_navigation(self):
+        code, embedded = self.request('/mobile/dosimeter', query='embedded=1')
+        self.assertEqual(code, 200)
+        self.assertIn(b'<body class="instrument-embedded">', embedded)
+        self.assertIn(b'href="/mobile?view=measure-a"', embedded)
+        self.assertIn(b'class="instrument-map-link" href="/mobile"', embedded)
+        self.assertIn(b'disabled>LOGG</button>', embedded)
+        self.assertIn(b'disabled>NEXUS<br />ONLINE</button>', embedded)
+        code, standalone = self.request('/mobile/dosimeter')
+        self.assertEqual(code, 200)
+        self.assertNotIn(b'<body class="instrument-embedded">', standalone)
+        self.assertEqual(self.request('/mobile', query='view=measure-a')[0], 200)
+
     def test_legacy_instrument_addresses_redirect(self):
         for path in ('/mobile/geigerteller', '/mobile/geigerteller/', '/07_geiger_lcars.html'):
             result = {}

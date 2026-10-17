@@ -86,3 +86,110 @@ body.mobile-view:not(.measurement-active) .map-home-slot {
 }
 .mobile-dosimeter-heading h2 { font-size: 18px; margin: 0; }
 #mobile-dosimeter-dialog iframe { width: 100%; flex: 1; min-height: 0; border: 0; }
+
+/* Instrument and measurement form share one header and four colored rail fields. */
+#mobile-dosimeter-dialog { padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+.mobile-instrument-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 8px 12px; min-height: 56px; flex-shrink: 0;
+  background: #849eb2; color: #080c12;
+}
+.mobile-instrument-header h2 {
+  margin: 0; font: 600 clamp(17px, 4.8vw, 25px)/1.2 system-ui, sans-serif;
+  letter-spacing: -.035em;
+}
+.mobile-instrument-header button {
+  flex-shrink: 0; border: 0; border-radius: 9px; padding: 10px 12px;
+  background: #111820; color: #f4f7fb; min-height: 40px;
+  font: 600 13px/1.2 system-ui, sans-serif;
+}
+.mobile-instrument-body { display: flex; flex: 1; min-height: 0; gap: 5px; padding: 5px 0; }
+.mobile-instrument-rail {
+  display: flex; flex-direction: column; gap: 6px; flex: 0 0 70px;
+  background: #030405;
+}
+.mobile-instrument-rail button {
+  min-height: 52px; padding: 6px 3px; border: 0; border-radius: 0 16px 16px 0;
+  background: #849eb2; color: #050508; font: 750 10px/1.3 system-ui, sans-serif;
+  text-transform: uppercase; overflow-wrap: anywhere;
+}
+.mobile-instrument-rail button[aria-pressed="true"] { background: #ff9f1c; }
+.mobile-instrument-rail button:disabled { background: #849eb2; color: #050508; opacity: 1; cursor: default; }
+.mobile-instrument-rail button.online { background: linear-gradient(180deg, #f7d55d, #d99a20); }
+.mobile-instrument-content { display: flex; flex: 1; min-width: 0; min-height: 0; }
+#mobile-dosimeter-dialog iframe { height: 100%; }
+#mobile-measurement-host { flex: 1; min-width: 0; overflow-y: auto; overscroll-behavior: contain; }
+#mobile-measurement-host .measurement-panel { width: 100%; margin: 0; padding: 8px; }
+#mobile-measurement-host .measurement-form { width: 100%; padding: 0; }
+#mobile-measurement-host .measurement-top { display: flex; flex-direction: column; }
+#mobile-measurement-host .measurement-side-fields,
+#mobile-measurement-host .measurement-grid { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; }
+#mobile-measurement-host .measurement-map-slot { width: 100%; height: 170px; min-height: 170px; }
+#mobile-measurement-host .measurement-heading { flex-wrap: wrap; }
+#mobile-measurement-host input, #mobile-measurement-host textarea { font-size: 16px; }
+#mobile-measurement-host .measurement-actions { display: flex; flex-wrap: wrap; }
+.mobile-instrument-header button:focus-visible,
+.mobile-instrument-rail button:focus-visible { outline: 3px solid #56d7ff; outline-offset: -3px; }
+.mobile-instrument-rail button { font-size: 9px; letter-spacing: -.035em; white-space: nowrap; }
+#mobile-measurement-host .measurement-form { display: flex; flex-direction: column; height: auto; min-height: 0; }
+#mobile-measurement-host .measurement-panel { overflow: visible; height: auto; }
+#mobile-measurement-host .measurement-top { flex-shrink: 0; }
+#mobile-measurement-host .measurement-map-slot { max-width: none; flex-shrink: 0; }
+#mobile-measurement-host #map { height: 100%; max-height: none; aspect-ratio: auto; }
+#mobile-measurement-host .wide-field { grid-column: 1 / -1; }
+#mobile-measurement-host input:not([type="checkbox"]) { height: 40px; }
+#mobile-measurement-host .measurement-actions button { min-height: 44px; }
+
+/* Original raised instrument casing surrounds header, rail and both views. */
+#mobile-dosimeter-dialog {
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  background: #030405;
+}
+.mobile-instrument-case {
+  position: relative; isolation: isolate; display: flex; flex-direction: column;
+  flex: 1; min-height: 0; width: 100%; padding: 5px;
+  border: 2px solid #6f5415; background: #000;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), 0 18px 70px rgba(0,0,0,.55);
+}
+.mobile-instrument-case::before,
+.mobile-instrument-case::after { content: ""; position: absolute; pointer-events: none; border-radius: 0; }
+.mobile-instrument-case::before {
+  inset: -12px; z-index: -1; background: #7a5f12;
+  box-shadow: inset 0 0 0 1px rgba(255,230,102,.24), inset 0 0 26px rgba(0,0,0,.36);
+}
+.mobile-instrument-case::after {
+  inset: -7px; z-index: 2; border: 2px solid rgba(37,28,7,.72);
+  box-shadow: 1px 1px 0 rgba(255,231,102,.22), -1px -1px 0 rgba(0,0,0,.36), inset 0 0 4px rgba(0,0,0,.46);
+}
+
+/* Separate curved end field, matching the original LCARS spine. */
+.mobile-instrument-spine {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-height: 68px;
+  border-radius: 0;
+  background: linear-gradient(180deg, transparent 0 8px, #849eb2 8px calc(100% - 34px), transparent calc(100% - 34px));
+}
+.mobile-instrument-spine::before,
+.mobile-instrument-spine::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 28px;
+  background: #849eb2;
+  border-radius: 0 0 0 28px;
+}
+.mobile-instrument-spine::before { top: 0; }
+.mobile-instrument-spine::after { bottom: 0; }
+
+/* Finish the header within the casing and keep both bevel edges symmetrical. */
+.mobile-instrument-header {
+  min-width: 0;
+  border-radius: 0 16px 16px 0;
+  overflow: hidden;
+}
+.mobile-instrument-header h2 { min-width: 0; }
+.mobile-instrument-case::before,
+.mobile-instrument-case::after { max-width: none; }

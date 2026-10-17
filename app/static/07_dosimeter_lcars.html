@@ -840,28 +840,62 @@
         font-size: 9px;
       }
     }
+    /* Compact shared instrument header; no extra bar above an embedded instrument. */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; min-height: 48px; padding: 8px 12px;
+      background: #849eb2; color: #080c12;
+    }
+    .instrument-brand {
+      margin: 0; font: 600 clamp(16px, 4.8vw, 25px)/1.2 system-ui, sans-serif;
+      letter-spacing: -.035em;
+    }
+    .instrument-map-link {
+      flex-shrink: 0; padding: 10px 12px; border-radius: 9px;
+      background: #111820; color: #f4f7fb; text-decoration: none;
+      font: 600 13px/1.2 system-ui, sans-serif;
+    }
+    .rail-menu .rail-button {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 48px; text-decoration: none; font-size: 10px;
+      padding: 10px 3px; overflow-wrap: anywhere;
+    }
+    .rail-button:disabled { opacity: 1; cursor: default; }
+    .card h2 { line-height: 1.3; flex-shrink: 0; }
+    .reading { line-height: 1.08; padding-top: .08em; overflow: visible; }
+    .reading-card { align-content: start; }
+    body.instrument-embedded { padding: 0; }
+    .instrument-embedded .shell {
+      width: 100%; height: 100dvh; grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr) auto; border: 0; padding: 6px;
+    }
+    .instrument-embedded .topbar, .instrument-embedded .rail { display: none; }
+    .instrument-embedded .shell::before, .instrument-embedded .shell::after { display: none; }
+    .instrument-embedded .content { grid-column: 1; grid-row: 1; }
+    .instrument-embedded .bottom-logo-bar { grid-column: 1; grid-row: 2; }
+    @media (max-height: 620px) {
+      .instrument-embedded .content { overflow-y: auto; display: block; }
+      .instrument-embedded .content > * { margin-bottom: 8px; }
+      .instrument-embedded .reading-card { min-height: 235px; }
+      .instrument-embedded .trend-card { min-height: 135px; }
+      .instrument-embedded .controls { display: grid; min-height: 52px; }
+    }
   </style>
 </head>
 <body>
   <main class="shell" aria-label="FieldPos Dosimeter">
     <header class="topbar">
-      <div class="brand">
-        <strong>DSA<br />FieldNexus</strong>
-        <span>Feltdata access</span>
-      </div>
-      <div class="title">
-        <span class="title-text">LCGT-01</span>
-      </div>
+      <h1 class="instrument-brand">DSA FieldNexus</h1>
+      <a class="instrument-map-link" href="/mobile">Til kartet</a>
     </header>
 
     <aside class="rail" aria-label="Instrumentvalg">
-      <div class="rail-menu">
-        <button class="rail-button active" type="button">Dashboard</button>
-        <button class="rail-button" type="button">Radiation</button>
-        <button class="rail-button" type="button">Trend</button>
-        <button class="rail-button" type="button">Logg</button>
-        <button class="rail-button online" type="button">NEXUS<br />Online</button>
-      </div>
+      <nav class="rail-menu" aria-label="Instrumentvisning">
+        <a class="rail-button active" href="/mobile/dosimeter" aria-current="page">Dosimeter</a>
+        <a class="rail-button" href="/mobile?view=measure-a">Måleskjema</a>
+        <button class="rail-button" type="button" disabled>LOGG</button>
+        <button class="rail-button online" type="button" disabled>NEXUS<br />ONLINE</button>
+      </nav>
       <div class="lcars-spine" aria-hidden="true"></div>
       <div class="mini-panel">
         <b>23-8954</b>

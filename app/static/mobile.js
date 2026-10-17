@@ -29,20 +29,54 @@
   const dialog = document.createElement("dialog");
   dialog.id = "mobile-dosimeter-dialog";
   dialog.setAttribute("aria-labelledby", "mobile-dosimeter-title");
-  dialog.innerHTML = `<div class="mobile-dosimeter-heading">
-    <h2 id="mobile-dosimeter-title">Dosimeter</h2>
+  dialog.innerHTML = `<div class="mobile-instrument-case"><header class="mobile-instrument-header">
+    <h2 id="mobile-dosimeter-title">DSA FieldNexus</h2>
     <button type="button" id="mobile-dosimeter-close">Til kartet</button>
-  </div><iframe title="Dosimeter" allow="geolocation" src="about:blank"></iframe>`;
+  </header><div class="mobile-instrument-body">
+    <nav class="mobile-instrument-rail" aria-label="Instrumentvalg">
+      <button type="button" data-instrument-view="dosimeter" aria-pressed="true">Dosimeter</button>
+      <button type="button" data-instrument-view="measurement" aria-pressed="false">Måleskjema</button>
+      <button type="button" disabled>LOGG</button>
+      <button type="button" class="online" disabled>NEXUS<br>ONLINE</button>
+      <span class="mobile-instrument-spine" aria-hidden="true"></span>
+    </nav>
+    <div class="mobile-instrument-content">
+      <iframe title="Dosimeter" allow="geolocation" src="about:blank"></iframe>
+      <section id="mobile-measurement-host" aria-label="Måleskjema" hidden></section>
+    </div>
+  </div></div>`;
   document.body.append(dialog);
   const frame = dialog.querySelector("iframe");
-  // Load only when requested. Keep the map and its GPS watch alive underneath.
-  dosimeter.addEventListener("click", () => {
-    if (frame.getAttribute("src") === "about:blank") frame.src = "/mobile/dosimeter";
-  });
-  dialog.querySelector("button").addEventListener("click", () => dialog.close());
+  const measurementHost = dialog.querySelector("#mobile-measurement-host");
+  const panel = document.getElementById("measurement-a-panel");
+  panel.setAttribute("aria-label", "Måleskjema");
+  panel.querySelector("h2").textContent = "Måleskjema";
+  measurementHost.append(panel);
+  const viewButtons = dialog.querySelectorAll("[data-instrument-view]");
+
+  function selectInstrument(view) {
+    const measurement = view === "measurement";
+    measurementHost.hidden = !measurement;
+    frame.hidden = measurement;
+    viewButtons.forEach(button => button.setAttribute("aria-pressed", String(button.dataset.instrumentView === view)));
+    window.dispatchEvent(new CustomEvent("fieldpos:set-view", {detail: measurement ? "measure-a" : "map"}));
+    if (!measurement && frame.getAttribute("src") === "about:blank") {
+      frame.src = "/mobile/dosimeter?embedded=1";
+    }
+  }
+
+  // Keep the same form, submit handlers, map and GPS watch when switching views.
+  dosimeter.addEventListener("click", () => selectInstrument("dosimeter"));
+  viewButtons.forEach(button => button.addEventListener("click", () => selectInstrument(button.dataset.instrumentView)));
+  dialog.querySelector("#mobile-dosimeter-close").addEventListener("click", () => dialog.close());
   dialog.addEventListener("close", () => {
-    // Unload the instrument to release audio/timers when returning to the map.
+    window.dispatchEvent(new CustomEvent("fieldpos:set-view", {detail: "map"}));
     frame.src = "about:blank";
+    measurementHost.hidden = true;
     dosimeter.focus();
   });
+  if (new URLSearchParams(window.location.search).get("view") === "measure-a") {
+    dialog.showModal();
+    selectInstrument("measurement");
+  }
 })();

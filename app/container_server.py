@@ -41,6 +41,8 @@ class Application:
             return [b'']
         if path in ('/mobile/dosimeter', '/mobile/dosimeter/'):
             html = (ROOT / 'static/07_dosimeter_lcars.html').read_text(encoding='utf-8')
+            if 'embedded=1' in environ.get('QUERY_STRING', '').split('&'):
+                html = html.replace('<body>', '<body class="instrument-embedded">')
             html = html.replace('<head>', '<head>\n  <base href="/">')
             body = html.encode('utf-8')
             start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8'), ('Cache-Control', 'no-store'), ('Content-Length', str(len(body)))])
